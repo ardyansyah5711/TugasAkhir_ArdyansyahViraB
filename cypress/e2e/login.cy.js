@@ -3,18 +3,27 @@ import loginPage from '../support/page_objects/loginPage';
 
 describe('Login Feature',() => {
     //TC1
-    it('Tampilan login',() => {
-        cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
+    it('Tampilan Login', () => {
+        // 1. Kunjungi halaman login
+        cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+
+        // 2. Siapkan intercept SEBELUM aksi login
+        cy.intercept("GET", "**/action-summary*").as("actionsummary");
+
+        // 3. Interaksi login
         loginPage.textLogin().should('have.text','Login');
         loginPage.inputUsername().type('Admin');
         loginPage.inputPassword().type('admin123');
-        cy.intercept("GET","**/employees/action-summary").as("actionsummary");
         loginPage.buttonLogin().click();
+
+        // 4. Tunggu request yang diintercept
         cy.wait("@actionsummary").then((intercept) => {
-        expect(intercept.response.statusCode).to.eq(200);
+            expect(intercept.response.statusCode).to.eq(200);
         })
-        loginPage.menuDashboard().should('have.text','Dashboard')
-    })
+        // 5. Pastikan dashboard tampil
+        loginPage.menuDashboard().should('have.text','Dashboard');
+        });
+
     //TC2
     it('Pengguna dapat login menggunakan data valid',() => {
         cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
@@ -43,16 +52,18 @@ describe('Login Feature',() => {
     })
     //TC4
     it('Pengguna dapat login dengan username dan password karakter alfanumerik',() => {
-        cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
+        cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+        cy.intercept("GET", "**/action-summary*").as("actionsummary");
         loginPage.textLogin().should('have.text','Login');
         loginPage.inputUsername().type('Admin');
         loginPage.inputPassword().type('admin123');
-        cy.intercept("GET","**/employees/action-summary").as("actionsummary");
         loginPage.buttonLogin().click();
         cy.wait("@actionsummary").then((intercept) => {
-            expect(intercept.response.statusCode).to.eq(200);
+        expect(intercept.response.statusCode).to.eq(200);
         })
-        loginPage.menuDashboard().should('have.text','Dashboard')
+
+  // 5. Pastikan dashboard tampil
+  loginPage.menuDashboard().should('have.text','Dashboard');
     })    
     //TC5
     it('Pengguna dapat login yang berisi karakter huruf abjad besar dan huruf abjad kecil.',() => {
@@ -63,7 +74,7 @@ describe('Login Feature',() => {
         cy.intercept("GET","**/employees/action-summary").as("actionsummary");
         loginPage.buttonLogin().click();
         cy.wait("@actionsummary").then((intercept) => {
-            expect(intercept.response.statusCode).to.eq(200);
+        expect(intercept.response.statusCode).to.eq(200);
         })
         loginPage.menuDashboard().should('have.text','Dashboard')
     })
@@ -123,32 +134,7 @@ describe('Login Feature',() => {
         })
         loginPage.invalidLogin().should('have.text','Invalid credentials');
     })
-    //TC9
-    // it('Username kosong',() => {
-    //     cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
-    //     loginPage.textLogin().should('have.text','Login');
-    //     loginPage.inputUsername().clear();
-    //     loginPage.inputPassword().type('hallo');
-    //     cy.intercept("GET","**/messages").as("messages");
-    //     loginPage.buttonLogin().click();
-    //     cy.wait("@messages").then((intercept) => {
-    //         expect(intercept.response.statusCode).to.eq(304);
-    //     })
-    //     loginPage.invalidLogin().should('have.text','Invalid credentials');
-    // })
-    //TC10
-    // it('Password Kosong',() => {
-    //     cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
-    //     loginPage.textLogin().should('have.text','Login');
-    //     loginPage.inputUsername().type('Admin');
-    //     loginPage.inputPassword().clear();
-    //     cy.intercept("GET","**/messages").as("messages");
-    //     loginPage.buttonLogin().click();
-    //     cy.wait("@messages").then((intercept) => {
-    //         expect(intercept.response.statusCode).to.eq(304);
-    //     })
-    //     loginPage.invalidLogin().should('have.text','Invalid credentials');
-    // })
+    
     //TC11
     it('Username dan password invalid',() => {
         cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
@@ -162,12 +148,4 @@ describe('Login Feature',() => {
         })
         loginPage.invalidLogin().should('have.text','Invalid credentials');
     })
-    // it('User Login with invalid Username',() => {
-    //     loginPage.textLogin().should('have.text','Login');
-    //     loginPage.inputUsername().type('Admin123');
-    // })
-    // it('User Login with Invalid Password',() => {
-    //     loginPage.textLogin().should('have.text','Login');
-    //     loginPage.inputPassword().type('admin');
-    // })
 })
